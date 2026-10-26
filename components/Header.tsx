@@ -18,13 +18,21 @@ export function Header() {
   const pathname = usePathname();
   const close = () => setOpen(false);
 
+  // On Home: scroll to top instead of doing nothing
+  const handleHomeClick = (e: React.MouseEvent) => {
+    close();
+    if (pathname === "/") {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   useEffect(() => {
     if (!open) return;
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
     };
-    // If the screen grows to desktop while the menu is open, close it
     const mq = window.matchMedia("(min-width: 1024px)");
     const onChange = (e: MediaQueryListEvent) => {
       if (e.matches) setOpen(false);
@@ -32,7 +40,7 @@ export function Header() {
 
     document.addEventListener("keydown", onKeyDown);
     mq.addEventListener("change", onChange);
-    document.body.style.overflow = "hidden"; // lock page scroll
+    document.body.style.overflow = "hidden";
 
     return () => {
       document.removeEventListener("keydown", onKeyDown);
@@ -43,7 +51,6 @@ export function Header() {
 
   return (
     <>
-      {/* Click-outside backdrop (mobile/tablet only) */}
       {open && (
         <div
           className="fixed inset-0 z-40 bg-black/40 lg:hidden"
@@ -54,7 +61,7 @@ export function Header() {
 
       <header className="sticky top-0 z-50 bg-primary">
         <div className="flex items-center justify-between py-2 pr-3 pl-5 lg:px-10">
-          <Link href="/" onClick={close}>
+          <Link href="/" onClick={handleHomeClick}>
             <Image
               src={BusinessLogo}
               alt="Marci Metzger Homes"
@@ -70,6 +77,7 @@ export function Header() {
                 <li key={href}>
                   <Link
                     href={href}
+                    onClick={href === "/" ? handleHomeClick : undefined}
                     aria-current={pathname === href ? "page" : undefined}
                     className={`text-sm font-medium uppercase tracking-widest transition-colors duration-300 hover:text-secondary ${
                       pathname === href ? "text-secondary" : "text-white"
@@ -125,7 +133,7 @@ export function Header() {
               <li key={href} className="border-b border-white/10 last:border-0">
                 <Link
                   href={href}
-                  onClick={close}
+                  onClick={href === "/" ? handleHomeClick : close}
                   aria-current={pathname === href ? "page" : undefined}
                   className={`block py-4 text-lg uppercase tracking-widest transition-colors hover:text-secondary ${
                     pathname === href ? "text-secondary" : "text-white"
